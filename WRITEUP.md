@@ -1,6 +1,6 @@
 # Udacity | Intel (R) Edge AI for IoT Developers Nanodegree
 ### PROJECT 1: DEPLOY A PEOPLE COUNTER APP AT THE EDGE
-##### SHAIK DAVOOD
+# AUTHOR: SHAIK DAVOOD
 
 ## Explaining Custom Layers
 
@@ -44,15 +44,22 @@ In investigating potential people counter models, I tried each of the following 
 - Model 1: [SSD Inception V2]
   -model source 
 *[http://download.tensorflow.org/models/object_detection/ssd_inception_v2_coco_2018_01_28.tar.gz]
-  -extraction
+  
+  -extracting files: 
+  
   *tar -xvf ssd_inception_v2_coco_2018_01_28.tar.gz
   *rm -r ssd_inception_v2_coco_2018_01_28.tar.gz
+  
+  
 - I converted the model to an Intermediate Representation with the following arguments...
+
   * /opt/intel/openvino/deployment_tools/model_optimizer/mo_tf.py --input_model ssd_inception_v2_coco_2018_01_28/frozen_inference_graph.pb --tensorflow_use_custom_operations_config /opt/intel/openvino/deployment_tools/model_optimizer/extensions/front/tf/ssd_v2_support.json --tensorflow_object_detection_api_pipeline_config ssd_inception_v2_coco_2018_01_28/pipeline.config --reverse_input_channel -o ssd_inception
   
 -time taken for generating IR model: 54.19 seconds
 
 -To run the model 
+
+
 *python main.py -i resources/Pedestrian_Detect_2_1_1.mp4 -m /home/workspace/ssd_inception/frozen_inference_graph.xml -l /opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension_sse4.so -d CPU -pt 0.6 | ffmpeg -v warning -f rawvideo -pixel_format bgr24 -video_size 768x432 -framerate 24 -i - http://0.0.0.0:3004/fac.ffm
 
 - The model was insufficient for the app because It has issues like first model where it failed to detect person in specific specific seconds .when second person came it didn't worked for a few seconds. Similarly for 3rd person it didn't worked again it failed.thus average duration may not be optained exactly so we cann't use this model as well.
@@ -66,30 +73,42 @@ In investigating potential people counter models, I tried each of the following 
   - [Model Source]
   * wget http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_coco_2018_03_29.tar.gz
   -extracting the file
-  tar -xvf ssd_mobilenet_v2_coco_2018_03_29.tar.gz
-  rm -r ssd_mobilenet_v2_coco_2018_03_29.tar.gz
+  
+  *tar -xvf ssd_mobilenet_v2_coco_2018_03_29.tar.gz
+  *rm -r ssd_mobilenet_v2_coco_2018_03_29.tar.gz
+  
   - I converted the model to an Intermediate Representation with the following arguments...
+  
   * /opt/intel/openvino/deployment_tools/model_optimizer/mo_tf.py --input_model ssd_mobilenet_v1_coco_2018_01_28/frozen_inference_graph.pb  --tensorflow_use_custom_operations_config /opt/intel/openvino/deployment_tools/model_optimizer/extensions/front/tf/ssd_support.json --tensorflow_object_detection_api_pipeline_config ssd_mobilenet_v1_coco_2018_01_28/pipeline.config --reverse_input_channel -o ssd_mbl_v1
-  -time taken for generating IR model: 51.81 seconds
-  -To run the model 
-  * python main.py -i resources/Pedestrian_Detect_2_1_1.mp4 -m /home/workspace/ssd_mbl_v1/frozen_inference_graph.xml -l /opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension_sse4.so -d CPU -pt 0.6 | ffmpeg -v warning -f rawvideo -pixel_format bgr24 -video_size 768x432 -framerate 24 -i - http://0.0.0.0:3004/fac.ffm
-  - The model was insufficient for the app because 
+ 
+ -time taken for generating IR model: 51.81 seconds
+
+-To run the model 
+
+* python main.py -i resources/Pedestrian_Detect_2_1_1.mp4 -m /home/workspace/ssd_mbl_v1/frozen_inference_graph.xml -l /opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension_sse4.so -d CPU -pt 0.6 | ffmpeg -v warning -f rawvideo -pixel_format bgr24 -video_size 768x432 -framerate 24 -i - http://0.0.0.0:3004/fac.ffm
+
+- The model was insufficient for the app because 
   - I tried to improve the model for the app by checking in documentation and I found that shape attribute is required.So I did that again with shape attribute as well
 
 - Model 3: [ssdlite_mobilenet_v2_coco]
   - [Model Source]
   * wget http://download.tensorflow.org/models/object_detection/ssdlite_mobilenet_v2_coco_2018_05_09.tar.gz
-  *tar -xvf ssdlite_mobilenet_v2_coco_2018_05_09.tar.gz
+
+*tar -xvf ssdlite_mobilenet_v2_coco_2018_05_09.tar.gz
   * rm -r ssdlite_mobilenet_v2_coco_2018_05_09.tar.gz
   
   - I converted the model to an Intermediate Representation with the following arguments...
   /opt/intel/openvino/deployment_tools/model_optimizer/mo_tf.py --input_model ssdlite_mobilenet_v2_coco_2018_05_09/frozen_inference_graph.pb --tensorflow_use_custom_operations_config /opt/intel/openvino/deployment_tools/model_optimizer/extensions/front/tf/ssd_v2_support.json --tensorflow_object_detection_api_pipeline_config ssdlite_mobilenet_v2_coco_2018_05_09/pipeline.config --reverse_input_channel -o ssdlite_mobilenet
-  -time taken for generating IR model: 53.68 seconds
-  -To run the model 
-  * python main.py -i resources/Pedestrian_Detect_2_1_1.mp4 -m /home/workspace/ssdlite_mobilenet/frozen_inference_graph.xml -l /opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension_sse4.so -d CPU -pt 0.6 | ffmpeg -v warning -f rawvideo -pixel_format bgr24 -video_size 768x432 -framerate 24 -i - http://0.0.0.0:3004/fac.ffm
+
+-time taken for generating IR model: 53.68 seconds
+
+-To run the model 
+
+* python main.py -i resources/Pedestrian_Detect_2_1_1.mp4 -m /home/workspace/ssdlite_mobilenet/frozen_inference_graph.xml -l /opt/intel/openvino/deployment_tools/inference_engine/lib/intel64/libcpu_extension_sse4.so -d CPU -pt 0.6 | ffmpeg -v warning -f rawvideo -pixel_format bgr24 -video_size 768x432 -framerate 24 -i - http://0.0.0.0:3004/fac.ffm
+  
   - The model was insufficient for the app because The model not was quite appropriate in terms of detecting the people facing backwards althought the inference speed was very fast inference latency was around 25 milliseconds.But still in some intermediate frames in some videos sometimes it fails to properly draw the bounding boxes. In the app to accomodate this issue I have implemented to igonre such intermediate miscalculations
  
- 
+ --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  
 -i have also gave a try to most of the models in tensorflow model zoo https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md 
 where i noticed error and I tried to improve the model for the app by checking in documentation and I found that shape attribute is required.So I did that again with shape attribute as well.Still it give errors.
